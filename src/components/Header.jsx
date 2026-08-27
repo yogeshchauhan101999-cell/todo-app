@@ -1,8 +1,5 @@
 import React, { useState } from "react";
 
-/**
- * Sticky responsive navbar with brand, nav links, and dark/light toggle.
- */
 function Header({ theme, onToggleTheme, activeView, onNavigate }) {
   const [menuOpen, setMenuOpen] = useState(false);
 

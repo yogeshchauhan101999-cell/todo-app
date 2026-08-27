@@ -21,7 +21,6 @@ function loadThemeFromStorage() {
   try {
     const stored = localStorage.getItem(TODO_THEME_STORAGE_KEY);
     if (stored === "dark" || stored === "light") return stored;
-    // Fall back to the user's system preference on first visit.
     return window.matchMedia("(prefers-color-scheme: dark)").matches
       ? "dark"
       : "light";

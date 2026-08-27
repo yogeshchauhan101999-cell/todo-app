@@ -1,101 +1,118 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from "react";
 
-const MAX_IMAGE_SIZE_MB = 4
+const MAX_IMAGE_SIZE_MB = 4;
 
-const emptyErrors = { title: '', description: '', image: '' }
+const emptyErrors = { title: "", description: "", image: "" };
 
-/**
- * Handles both creating a new todo and editing an existing one.
- * When `editingTodo` is provided the form pre-fills and switches to update mode.
- */
 function TodoForm({ editingTodo, onAddTodo, onUpdateTodo, onCancelEdit }) {
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [image, setImage] = useState(null)
-  const [errors, setErrors] = useState(emptyErrors)
-  const fileInputRef = useRef(null)
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [image, setImage] = useState(null);
+  const [errors, setErrors] = useState(emptyErrors);
+  const fileInputRef = useRef(null);
 
-  const isEditing = Boolean(editingTodo)
+  const isEditing = Boolean(editingTodo);
 
-  // Populate the form whenever a different todo is selected for editing.
   useEffect(() => {
     if (editingTodo) {
-      setTitle(editingTodo.title)
-      setDescription(editingTodo.description)
-      setImage(editingTodo.image)
+      setTitle(editingTodo.title);
+      setDescription(editingTodo.description);
+      setImage(editingTodo.image);
     } else {
-      setTitle('')
-      setDescription('')
-      setImage(null)
+      setTitle("");
+      setDescription("");
+      setImage(null);
     }
-    setErrors(emptyErrors)
-  }, [editingTodo])
+    setErrors(emptyErrors);
+  }, [editingTodo]);
 
   const resetForm = () => {
-    setTitle('')
-    setDescription('')
-    setImage(null)
-    setErrors(emptyErrors)
-    if (fileInputRef.current) fileInputRef.current.value = ''
-  }
+    setTitle("");
+    setDescription("");
+    setImage(null);
+    setErrors(emptyErrors);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   const handleImageChange = (event) => {
-    const file = event.target.files && event.target.files[0]
-    if (!file) return
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      setErrors((prev) => ({ ...prev, image: 'Please choose a valid image file.' }))
-      return
+    if (!file.type.startsWith("image/")) {
+      setErrors((prev) => ({
+        ...prev,
+        image: "Please choose a valid image file.",
+      }));
+      return;
     }
 
     if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
-      setErrors((prev) => ({ ...prev, image: `Image must be smaller than ${MAX_IMAGE_SIZE_MB}MB.` }))
-      return
+      setErrors((prev) => ({
+        ...prev,
+        image: `Image must be smaller than ${MAX_IMAGE_SIZE_MB}MB.`,
+      }));
+      return;
     }
 
-    const reader = new FileReader()
+    const reader = new FileReader();
     reader.onload = () => {
-      setImage(reader.result)
-      setErrors((prev) => ({ ...prev, image: '' }))
-    }
+      setImage(reader.result);
+      setErrors((prev) => ({ ...prev, image: "" }));
+    };
     reader.onerror = () => {
-      setErrors((prev) => ({ ...prev, image: 'Could not read that image. Please try another file.' }))
-    }
-    reader.readAsDataURL(file)
-  }
+      setErrors((prev) => ({
+        ...prev,
+        image: "Could not read that image. Please try another file.",
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleRemoveImage = () => {
-    setImage(null)
-    if (fileInputRef.current) fileInputRef.current.value = ''
-  }
+    setImage(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   const validate = () => {
-    const nextErrors = { ...emptyErrors }
-    if (!title.trim()) nextErrors.title = 'Task title is required.'
-    if (!description.trim()) nextErrors.description = 'A short description helps you remember the task.'
-    setErrors((prev) => ({ ...prev, ...nextErrors }))
-    return !nextErrors.title && !nextErrors.description
-  }
+    const nextErrors = { ...emptyErrors };
+    if (!title.trim()) nextErrors.title = "Task title is required.";
+    if (!description.trim())
+      nextErrors.description =
+        "A short description helps you remember the task.";
+    setErrors((prev) => ({ ...prev, ...nextErrors }));
+    return !nextErrors.title && !nextErrors.description;
+  };
 
   const handleSubmit = (event) => {
-    event.preventDefault()
-    if (!validate()) return
+    event.preventDefault();
+    if (!validate()) return;
 
-    const payload = { title: title.trim(), description: description.trim(), image }
+    const payload = {
+      title: title.trim(),
+      description: description.trim(),
+      image,
+    };
 
     if (isEditing) {
-      onUpdateTodo(editingTodo.id, payload)
+      onUpdateTodo(editingTodo.id, payload);
     } else {
-      onAddTodo(payload)
-      resetForm()
+      onAddTodo(payload);
+      resetForm();
     }
-  }
+  };
 
   return (
-    <section className="todo-form-card" aria-label={isEditing ? 'Edit task' : 'Add a new task'}>
+    <section
+      className="todo-form-card"
+      aria-label={isEditing ? "Edit task" : "Add a new task"}
+    >
       <div className="todo-form-header">
-        <h2>{isEditing ? 'Edit Task' : 'Add a New Task'}</h2>
-        <p>{isEditing ? 'Update the details below and save your changes.' : 'What do you need to get done?'}</p>
+        <h2>{isEditing ? "Edit Task" : "Add a New Task"}</h2>
+        <p>
+          {isEditing
+            ? "Update the details below and save your changes."
+            : "What do you need to get done?"}
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} noValidate>
@@ -107,9 +124,9 @@ function TodoForm({ editingTodo, onAddTodo, onUpdateTodo, onCancelEdit }) {
             placeholder="e.g. Finish quarterly report"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className={errors.title ? 'input-error' : ''}
+            className={errors.title ? "input-error" : ""}
             aria-invalid={Boolean(errors.title)}
-            aria-describedby={errors.title ? 'title-error' : undefined}
+            aria-describedby={errors.title ? "title-error" : undefined}
           />
           {errors.title && (
             <span className="field-error" id="title-error" role="alert">
@@ -126,9 +143,11 @@ function TodoForm({ editingTodo, onAddTodo, onUpdateTodo, onCancelEdit }) {
             rows={3}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className={errors.description ? 'input-error' : ''}
+            className={errors.description ? "input-error" : ""}
             aria-invalid={Boolean(errors.description)}
-            aria-describedby={errors.description ? 'description-error' : undefined}
+            aria-describedby={
+              errors.description ? "description-error" : undefined
+            }
           />
           {errors.description && (
             <span className="field-error" id="description-error" role="alert">
@@ -158,7 +177,7 @@ function TodoForm({ editingTodo, onAddTodo, onUpdateTodo, onCancelEdit }) {
                   strokeLinejoin="round"
                 />
               </svg>
-              <span>{image ? 'Change photo' : 'Upload a photo'}</span>
+              <span>{image ? "Change photo" : "Upload a photo"}</span>
             </label>
 
             {image && (
@@ -184,17 +203,21 @@ function TodoForm({ editingTodo, onAddTodo, onUpdateTodo, onCancelEdit }) {
 
         <div className="form-actions">
           {isEditing && (
-            <button type="button" className="btn btn-ghost" onClick={onCancelEdit}>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              onClick={onCancelEdit}
+            >
               Cancel
             </button>
           )}
           <button type="submit" className="btn btn-primary">
-            {isEditing ? 'Update Task' : 'Add Task'}
+            {isEditing ? "Update Task" : "Add Task"}
           </button>
         </div>
       </form>
     </section>
-  )
+  );
 }
 
-export default TodoForm
+export default TodoForm;
